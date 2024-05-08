@@ -38,18 +38,36 @@ void bayer_split(cv::Mat &Bayer,cv::Mat &Dst){
 	//cout << "SIZE: " << Dst.size() << " Channels: " << Dst.channels() << endl;
 	int channelNum;
 
-	for(int row = 0; row < Bayer.rows; row++){
-		for(int col = 0; col < Bayer.cols; col++){
-			if(row % 2 == 0){ // opencv: BGR
-				//even rows and even cols = R = channel:2
-				//even rows and  odd cols = G = channel:1 
-				channelNum = (col % 2 == 0) ? 2 : 1;
-			}else{
-				//odd rows and even cols = G = channel:1
-				//odd rows and  odd cols = B = channel:0 
-				channelNum = (col % 2 == 0) ? 1 : 0;
+	for(int row = 0, iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
+	    row < iBayerRows;
+		row++
+	){
+		// for(int col = 0; col < Bayer.cols; col++){
+		// 	if(row % 2 == 0){ // opencv: BGR
+		// 		//even rows and even cols = R = channel:2
+		// 		//even rows and  odd cols = G = channel:1 
+		// 		channelNum = (col % 2 == 0) ? 2 : 1;
+		// 	}else{
+		// 		//odd rows and even cols = G = channel:1
+		// 		//odd rows and  odd cols = B = channel:0 
+		// 		channelNum = (col % 2 == 0) ? 1 : 0;
+		// 	}
+		// 	Dst.at<Vec3b>(row, col).val[channelNum] = Bayer.at<uchar>(row, col);
+		// }
+		if(row % 2 == 0){
+			for(int col = 0; col < iBayerCols; col+=2){
+				Dst.at<Vec3b>(row, col).val[2] = Bayer.at<uchar>(row, col);
 			}
-			Dst.at<Vec3b>(row, col).val[channelNum] = Bayer.at<uchar>(row, col);
+			for(int col = 1; col < iBayerCols; col+=2){
+				Dst.at<Vec3b>(row, col).val[1] = Bayer.at<uchar>(row, col);
+			}
+		}else{
+			for(int col = 0; col < iBayerCols; col+=2){
+				Dst.at<Vec3b>(row, col).val[1] = Bayer.at<uchar>(row, col);
+			}
+			for(int col = 1; col < iBayerCols; col+=2){
+				Dst.at<Vec3b>(row, col).val[0] = Bayer.at<uchar>(row, col);
+			}
 		}
 	}
 	return;
@@ -244,23 +262,53 @@ void demosaic_laplacian_corrected(cv::Mat &Bayer,cv::Mat &Dst, float alpha = 1.0
 	// Laplacian correction
 	// R G
 	// G B
-	for(int row = 0; row < Bayer.rows; row++){
-		for(int col = 0; col < Bayer.cols; col++){
-			if(row % 2 == 0 && col % 2 == 0){ //Red
+	for(int row = 0, iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
+	    row < iBayerRows;
+		row++
+	){
+		// for(int col = 0; col < Bayer.cols; col++){
+		// 	if(row % 2 == 0 && col % 2 == 0){ //Red
+		// 		//Blue @ Red
+		// 		bgr[0].at<float>(row, col) += gamma * laplacian[2].at<float>(row, col);
+		// 		//Green @ Red
+		// 		bgr[1].at<float>(row, col) += alpha * laplacian[2].at<float>(row, col);
+		// 	}else if(row % 2 == 1 && col % 2 == 1){ //Blue
+		// 		//Green @ Blue
+		// 		bgr[1].at<float>(row, col) += alpha * laplacian[0].at<float>(row, col);
+		// 		//Red @ Blue
+		// 		bgr[2].at<float>(row, col) += beta * laplacian[0].at<float>(row, col);
+		// 	}else{
+		// 		//Red @ Green
+		// 		bgr[2].at<float>(row, col) += beta * laplacian[1].at<float>(row, col);
+		// 		//Blue @ Green
+		// 		bgr[0].at<float>(row, col) += gamma * laplacian[1].at<float>(row, col);
+		// 	}
+		// }
+		if(row % 2 == 0){
+			for(int col = 0; col < iBayerCols; col+=2){ //Red
 				//Blue @ Red
 				bgr[0].at<float>(row, col) += gamma * laplacian[2].at<float>(row, col);
 				//Green @ Red
 				bgr[1].at<float>(row, col) += alpha * laplacian[2].at<float>(row, col);
-			}else if(row % 2 == 1 && col % 2 == 1){ //Blue
-				//Green @ Blue
-				bgr[1].at<float>(row, col) += alpha * laplacian[0].at<float>(row, col);
-				//Red @ Blue
-				bgr[2].at<float>(row, col) += beta * laplacian[0].at<float>(row, col);
-			}else{
+			}
+			for(int col = 1; col < iBayerCols; col+=2){
 				//Red @ Green
 				bgr[2].at<float>(row, col) += beta * laplacian[1].at<float>(row, col);
 				//Blue @ Green
 				bgr[0].at<float>(row, col) += gamma * laplacian[1].at<float>(row, col);
+			}
+		}else{
+			for(int col = 0; col < iBayerCols; col+=2){
+				//Red @ Green
+				bgr[2].at<float>(row, col) += beta * laplacian[1].at<float>(row, col);
+				//Blue @ Green
+				bgr[0].at<float>(row, col) += gamma * laplacian[1].at<float>(row, col);
+			}
+			for(int col = 1; col < iBayerCols; col+=2){ //Blue
+				//Green @ Blue
+				bgr[1].at<float>(row, col) += alpha * laplacian[0].at<float>(row, col);
+				//Red @ Blue
+				bgr[2].at<float>(row, col) += beta * laplacian[0].at<float>(row, col);
 			}
 		}
 	}
