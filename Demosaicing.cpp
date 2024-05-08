@@ -38,10 +38,8 @@ void bayer_split(cv::Mat &Bayer,cv::Mat &Dst){
 	//cout << "SIZE: " << Dst.size() << " Channels: " << Dst.channels() << endl;
 	int channelNum;
 
-	for(int row = 0, iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
-	    row < iBayerRows;
-		row++
-	){
+	const int iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
+	for(int row = 0; row < iBayerRows; row++){
 		// for(int col = 0; col < Bayer.cols; col++){
 		// 	if(row % 2 == 0){ // opencv: BGR
 		// 		//even rows and even cols = R = channel:2
@@ -262,10 +260,8 @@ void demosaic_laplacian_corrected(cv::Mat &Bayer,cv::Mat &Dst, float alpha = 1.0
 	// Laplacian correction
 	// R G
 	// G B
-	for(int row = 0, iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
-	    row < iBayerRows;
-		row++
-	){
+	const int iBayerRows = Bayer.rows, iBayerCols = Bayer.cols;
+	for(int row = 0; row < iBayerRows; row++){
 		// for(int col = 0; col < Bayer.cols; col++){
 		// 	if(row % 2 == 0 && col % 2 == 0){ //Red
 		// 		//Blue @ Red
