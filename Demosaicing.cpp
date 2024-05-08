@@ -281,30 +281,34 @@ void demosaic_laplacian_corrected(cv::Mat &Bayer,cv::Mat &Dst, float alpha = 1.0
 		if(row % 2 == 0){
 			for(int col = 0; col < iBayerCols; ++col){
 				//Red
+				&auto lpl2 = laplacian[2].at<float>(row, col);
 				//Blue @ Red
-				bgr[0].at<float>(row, col) += gamma * laplacian[2].at<float>(row, col);
+				bgr[0].at<float>(row, col) += gamma * lpl2;
 				//Green @ Red
-				bgr[1].at<float>(row, col) += alpha * laplacian[2].at<float>(row, col);
+				bgr[1].at<float>(row, col) += alpha * lpl2;
 
 				++col;
+				&auto lpl1 = laplacian[1].at<float>(row, col);
 				//Red @ Green
-				bgr[2].at<float>(row, col) += beta * laplacian[1].at<float>(row, col);
+				bgr[2].at<float>(row, col) += beta * lpl1;
 				//Blue @ Green
-				bgr[0].at<float>(row, col) += gamma * laplacian[1].at<float>(row, col);
+				bgr[0].at<float>(row, col) += gamma * lpl1;
 			}
 		}else{
 			for(int col = 0; col < iBayerCols; ++col){
+				&auto lpl1 = laplacian[1].at<float>(row, col);
 				//Red @ Green
-				bgr[2].at<float>(row, col) += beta * laplacian[1].at<float>(row, col);
+				bgr[2].at<float>(row, col) += beta * lpl1;
 				//Blue @ Green
-				bgr[0].at<float>(row, col) += gamma * laplacian[1].at<float>(row, col);
+				bgr[0].at<float>(row, col) += gamma * lpl1;
 
 				//Blue
 				++col;
+				&auto lpl0 = laplacian[0].at<float>(row, col);
 				//Green @ Blue
-				bgr[1].at<float>(row, col) += alpha * laplacian[0].at<float>(row, col);
+				bgr[1].at<float>(row, col) += alpha * lpl0;
 				//Red @ Blue
-				bgr[2].at<float>(row, col) += beta * laplacian[0].at<float>(row, col);
+				bgr[2].at<float>(row, col) += beta * lpl0;
 			}
 		}
 	}
